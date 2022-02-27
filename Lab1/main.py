@@ -1,6 +1,7 @@
 import math
 import random
 import numpy
+import matplotlib.pyplot as plt
 
 sinus_alphas = [
     numpy.float32(1805490264.690988571178600370234394843221),
@@ -92,9 +93,53 @@ def ex2_check_multiply():
 
 def approximate_sinus(x):
     if not -1 <= x <= 1:
-        print("x must be in [-1,1]")
+        print("x must be in [-1,1] vs %f" % x)
         return None
     return x * p4(x * x, sinus_alphas) / p4(x * x, sinus_bethas)
+
+
+# using sin(2x) formula
+# this function can accept values between [-pi/2, pi/2]
+def sin_extended(x):
+    return 2 * approximate_sinus(x / 2) * approximate_cosinus(x / 2)
+
+
+# using cos(2x) formula
+# this function can accept values between [-pi/2, pi/2]
+def cos_extended(x):
+    return approximate_cosinus(x / 2) ** 2 - approximate_sinus(x / 2) ** 2
+
+
+def reduce_sin_quadrant(x):
+    x = x % (2 * math.pi)
+
+    # second quadrant
+    if math.pi / 2 <= x < math.pi:
+        x = math.pi - x
+
+    # third quadrant
+    if math.pi <= x < 3 * math.pi / 2:
+        x = - (x - math.pi)
+
+    # forth quadrant
+    if 3 * math.pi / 2 <= x <= 2 * math.pi:
+        x = - (2 * math.pi - x)
+
+    return x
+
+
+# reduce the angle to first quadrant and calculates the sin value
+def approximate_sinus_general(x):
+    # using sin(-x) = -sin(x)
+    x = reduce_sin_quadrant(x)
+    return sin_extended(x)
+
+
+# reduce the angle to first quadrant and calculates the sin value
+def approximate_cosin_general(x):
+    # using cos(x -+ pi/2) = -+sin(x)
+    x = reduce_sin_quadrant(x + math.pi / 2)
+    return sin_extended(x)
 
 
 def approximate_cosinus(x):
@@ -110,6 +155,10 @@ def approximate_logarithm(x):
         return None
     z = (x - 1) / (x + 1)
     return z * p4(z * z, logarithm_alphas) / p4(z * z, logarithm_bethas)
+
+
+def angle_to_radians(angle):
+    return (angle * math.pi) / 180.0
 
 
 def ex3():
@@ -129,6 +178,33 @@ def ex3():
     print("Logarithm value :" + str(ln))
     print("Actual Value : " + str(actual_ln))
     print("Error : " + str(abs(ln - actual_ln)))
+
+    # BONUS
+
+    x = []
+    y = []
+
+    for angle in range(-720, 720):
+        rad = angle_to_radians(angle)
+
+        x.append(rad)
+        y.append(approximate_sinus_general(rad))
+
+    plt.plot(x, y)
+    plt.ylabel('sin(x)')
+    plt.show()
+
+    x = []
+    y = []
+    for angle in range(-720, 720):
+        rad = angle_to_radians(angle)
+
+        x.append(rad)
+        y.append(approximate_cosin_general(rad))
+
+    plt.plot(x, y)
+    plt.ylabel('cos(x)')
+    plt.show()
 
 
 def main():
