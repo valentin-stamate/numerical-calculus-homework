@@ -1,12 +1,33 @@
 import math
 
 import numpy as np
-import sys
 
 eps = 10 ** (-8)
 
 
-def save_log(a, x, n):
+def print_matrix(a, label=''):
+    n = a.shape[0]
+
+    if label != '':
+        print(label)
+
+    if len(a.shape) == 1:
+        for i in range(0, n):
+            print('%-5f  ' % a[i], end='')
+        print("\n")
+        return
+
+    m = a.shape[1]
+
+    for i in range(0, n):
+        for j in range(0, m):
+            print('%2.6f' % a[i, j])
+        print("\n")
+
+    print("\n")
+
+
+def save_matrix(a, x, n):
     with open('log.txt', 'w') as f:
         for i in range(n):
             for j in range(n + 1):
@@ -35,11 +56,6 @@ def solve_triangular_matrix(a, n):
 
         x[i] = (a[i, n] - s) / a[i, i]
 
-    print("Solution:")
-    for i in range(n):
-        print('X%d = %0.2f' % (i, x[i]), end='\t')
-    print("\n")
-
     return x
 
 
@@ -63,8 +79,6 @@ def gauss_elimination(a, n, a_init, b_init):
     for l in range(0, n - 1):
         pivot = search_pivot(a, l, n)
         if pivot != l:
-            print("l=", l, '\n')
-            print("pv=", pivot, '\n')
             swap_lines(a, l, pivot)
 
         if abs(a[l, l]) < eps:
@@ -81,9 +95,9 @@ def gauss_elimination(a, n, a_init, b_init):
     if abs(a[l, l]) <= eps:
         print("Matrice singulara")
     else:
-        print(a, '\n\n')
         x = solve_triangular_matrix(a, n)
         norm = verify(a_init, x, b_init, n)
+
         print("The norm is:")
         print(norm)
 
@@ -91,8 +105,10 @@ def gauss_elimination(a, n, a_init, b_init):
 
     return None
 
+
 def gauss_elimination_old(a, n):
     x = np.zeros(n)
+
     for i in range(n):
         if abs(a[i][i]) < eps:
             print('Divide by zero detected!')
@@ -115,14 +131,9 @@ def gauss_elimination_old(a, n):
 
         x[i] = x[i] / a[i][i]
 
-    # np.savetxt('log.txt', a, delimiter=' ')
+    save_matrix(a, x, n)
 
-    save_log(a, x, n)
-
-    print('\nThe solution is: ')
-    for i in range(n):
-        print('X%d = %0.2f' % (i, x[i]), end='\t')
-    print('\n')
+    print_matrix(x, "The solution is")
 
     solve_triangular_matrix(a, n)
     return x
@@ -130,8 +141,8 @@ def gauss_elimination_old(a, n):
 
 def verify(a_init, x, b_init, n):
     b_cal = np.dot(a_init, x)
-    print('B Calc\n', b_cal, '\n')
-    print('B Init\n', b_init, '\n')
+    print_matrix(b_cal, "B Calc:")
+    print_matrix(b_init, "B Init")
 
     x_calc = b_cal - b_init
 
