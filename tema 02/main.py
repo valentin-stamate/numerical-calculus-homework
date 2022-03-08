@@ -21,8 +21,8 @@ def print_matrix(a, label=''):
 
     for i in range(0, n):
         for j in range(0, m):
-            print('%2.6f' % a[i, j])
-        print("\n")
+            print('%-8f   ' % a[i, j], end='')
+        print()
 
     print("\n")
 
@@ -75,7 +75,7 @@ def swap_lines(a, i, j):
     a[[i, j]] = a[[j, i]]
 
 
-def gauss_elimination(a, n, a_init, b_init):
+def gauss_elimination(a, n):
     for col in range(0, n - 1):
         pivot = search_pivot(a, col, n)
         if pivot != col:
@@ -158,6 +158,80 @@ def verify(a_init, x, b_init, n):
     return math.sqrt(s)
 
 
+def construct_matrix_from_comp(a_comp, n):
+    a = np.zeros((n, n + 1), dtype='float32')
+
+    a[0, 0] = a_comp[0, 0]
+    a[0, 1] = a_comp[0, 1]
+
+    for i in range(1, n):
+        for j in range(0, 3):
+            a[i, i - 1 + j] = a_comp[i, j]
+
+    return a
+
+
+def extract_comp_from_matrix(a, n):
+    a_comp = np.zeros((n, 3), dtype='float32')
+
+    a_comp[0, 0] = a[0, 0]
+    a_comp[0, 1] = a[0, 1]
+
+    for i in range(1, n):
+        for j in range(0, 3):
+            a_comp[i, j] = a[i, i - 1 + j]
+
+    return a_comp
+
+
+def gauss_tridiagonal(n):
+    original = np.random.rand(n, n + 1)
+    a_comp = extract_comp_from_matrix(original, n)
+    a_init = construct_matrix_from_comp(a_comp, n)
+    b_init = a_init[:, -1]
+    a_init = np.delete(a_init, axis=1, obj=n)
+
+    # print_matrix(original, 'Original')
+    # print_matrix(a_comp, 'A Comp')
+    # print_matrix(a_init, 'A init')
+
+    # in mod similar ca si in algoritmul clasic vrem sa facem
+    # incepand de la lina 2, prima coloana 0
+
+    a = a_comp[0, 0]
+    b = a_comp[0, 1]
+    c = a_comp[1, 0]
+
+    ratio = - c / a
+    a_comp[1, 0] += ratio * a
+    a_comp[1, 1] += ratio * b
+
+    for i in range(1, n - 1):
+        a = a_comp[i, 1]
+        b = a_comp[i, 2]
+        c = a_comp[i + 1, 0]
+
+        # pivotare
+        # if c > a:
+        #     swap_lines(a_comp, i, i + 1)
+
+        a = a_comp[i, 1]
+        b = a_comp[i, 2]
+        c = a_comp[i + 1, 0]
+
+        ratio = - c / a
+
+        a_comp[i + 1, 0] += ratio * a
+        a_comp[i + 1, 1] += ratio * b
+
+    a = construct_matrix_from_comp(a_comp, n)
+
+    x = solve_triangular_matrix(a, n)
+    x_lib = np.linalg.solve(a_init, b_init)
+    print(np.linalg.norm(x - x_lib))
+
+
+
 def main():
     a = np.array([
         [2, 1, -1, 8],
@@ -172,7 +246,7 @@ def main():
 
     # Point 1
     a_init = np.delete(a, axis=1, obj=n)
-    x_gauss = gauss_elimination(a, n, a_init, b_init)
+    x_gauss = gauss_elimination(a, n)
     # print("X_gauss = ", end='')
     # print(x_gauss)
     # point 2
@@ -189,6 +263,10 @@ def main():
     a = np.copy(a_init)
     gauss_inverse = gauss_elimination_extended(a, n)
     print("||A^(-1)_gauss - A^(-1)_bibl|| = " + str(np.linalg.norm(np.linalg.inv(a_init) - gauss_inverse)))
+
+    # Bonus
+    print("Bonus\n")
+    gauss_tridiagonal(5)
 
 
 if __name__ == '__main__':
