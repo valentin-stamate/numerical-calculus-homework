@@ -165,14 +165,19 @@ def construct_matrix_from_comp(a_comp, n):
     a[0, 1] = a_comp[0, 1]
 
     for i in range(1, n):
-        for j in range(0, 3):
+        if i == n - 1:
+            for j in range(0, 3):
+                a[i, i - 1 + j] = a_comp[i, j]
+            break
+
+        for j in range(0, 4):
             a[i, i - 1 + j] = a_comp[i, j]
 
     return a
 
 
 def extract_comp_from_matrix(a, n):
-    a_comp = np.zeros((n, 3), dtype='float32')
+    a_comp = np.zeros((n, 4), dtype='float32')
 
     a_comp[0, 0] = a[0, 0]
     a_comp[0, 1] = a[0, 1]
@@ -184,16 +189,18 @@ def extract_comp_from_matrix(a, n):
     return a_comp
 
 
+def swap(a, index_i, index_j):
+    aux = a[index_i[0], index_i[1]]
+    a[index_i[0], index_i[1]] = a[index_j[0], index_j[1]]
+    a[index_j[0], index_j[1]] = aux
+
+
 def gauss_tridiagonal(n):
     original = np.random.rand(n, n + 1)
     a_comp = extract_comp_from_matrix(original, n)
     a_init = construct_matrix_from_comp(a_comp, n)
     b_init = a_init[:, -1]
     a_init = np.delete(a_init, axis=1, obj=n)
-
-    # print_matrix(original, 'Original')
-    # print_matrix(a_comp, 'A Comp')
-    # print_matrix(a_init, 'A init')
 
     # in mod similar ca si in algoritmul clasic vrem sa facem
     # incepand de la lina 2, prima coloana 0
@@ -209,27 +216,32 @@ def gauss_tridiagonal(n):
     for i in range(1, n - 1):
         a = a_comp[i, 1]
         b = a_comp[i, 2]
+        d = a_comp[i, 3]
         c = a_comp[i + 1, 0]
 
         # pivotare
-        # if c > a:
-        #     swap_lines(a_comp, i, i + 1)
+        if c > a:
+            swap(a_comp, (i, 1), (i + 1, 0))
+            swap(a_comp, (i, 2), (i + 1, 1))
+            swap(a_comp, (i, 3), (i + 1, 2))
 
         a = a_comp[i, 1]
         b = a_comp[i, 2]
+        d = a_comp[i, 3]
         c = a_comp[i + 1, 0]
 
         ratio = - c / a
 
         a_comp[i + 1, 0] += ratio * a
         a_comp[i + 1, 1] += ratio * b
+        a_comp[i + 1, 2] += ratio * d
 
     a = construct_matrix_from_comp(a_comp, n)
 
     x = solve_triangular_matrix(a, n)
     x_lib = np.linalg.solve(a_init, b_init)
-    print(np.linalg.norm(x - x_lib))
 
+    print(np.linalg.norm(x - x_lib))
 
 
 def main():
@@ -265,8 +277,8 @@ def main():
     print("||A^(-1)_gauss - A^(-1)_bibl|| = " + str(np.linalg.norm(np.linalg.inv(a_init) - gauss_inverse)))
 
     # Bonus
-    print("Bonus\n")
-    gauss_tridiagonal(5)
+    print("Bonus")
+    gauss_tridiagonal(n)
 
 
 if __name__ == '__main__':
