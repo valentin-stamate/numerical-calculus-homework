@@ -1,3 +1,4 @@
+import numpy as np
 
 
 def read_matrix(path):
@@ -7,7 +8,7 @@ def read_matrix(path):
     n = int(lines[0])
     lines = lines[2:]
 
-    mp = {}
+    mp = [{} for _ in range(n)]
 
     for line in lines:
         val, i, j = line.split(',')
@@ -15,70 +16,92 @@ def read_matrix(path):
         i = int(i.strip())
         j = int(j.strip())
 
-        key = (i, j)
-
-        if mp.get(key) is not None:
-            mp[key] += val
+        if mp[i].get(j) is not None:
+            mp[i][j] += val
             continue
 
-        mp[key] = val
+        mp[i][j] = val
 
     return n, mp
 
 
+def to_matrix(a: list[dict], sym = False):
+    n = len(a)
+
+    matrix = np.zeros((n, n), dtype='float32')
+
+    for i in range(n):
+        for k, value in a[i].items():
+            if sym:
+                matrix[i, k] = matrix[k, i] = value
+                continue
+
+            matrix[i, k] = value
+
+    return matrix
+
+
 def sum_matrix(a, b):
-    r = {}
+    n = len(a)
+    r = [{} for _ in range(n)]
 
-    for key, value in a.items():
-        r[key] = value
+    for i in range(n):
+        for j, value in a[i].items():
+            r[i][j] = value
 
-    for key, value in b.items():
+    for i in range(n):
+        for j, value in b[i].items():
+            if r[i].get(j) is not None:
+                r[i][j] += value
+                continue
 
-        if r.get(key) is not None:
-            r[key] += value
-            continue
-
-        r[key] = value
+            r[i][j] = value
 
     return r
 
 
-def multiply_matrix(a, b, n):
+def square_matrix(a: list[dict]):
+    n = len(a)
 
-    prod = {}
+    prod = [{} for _ in range(n)]
 
     for i in range(n):
-        print(i)
+        for j, value in a[i].items():
+            a[j][i] = value
+
+    for i in range(n):
+        line_a = a[i]
         for j in range(n):
+            # numai valorile nenule de pe linia i a se vor inmulti
+            # cu valorile nenule de pe linia j
             s = 0
-            for k in range(n):
-                x = a.get((i, k))
-                if x is None:
-                    x = a.get((k, i))
+            for k, lin in line_a.items():
+                col = a[k].get(j)
 
-                y = b.get((k, j))
-                if y is None:
-                    y = b.get((j, k))
+                if col is None:
+                    col = a[j].get(k)
 
-                if x is not None and y is not None:
-                    s += x * y
+                if col is not None:
+                    s += lin * col
 
             if s != 0:
-                prod[(i, j)] = s
+                prod[i][j] = s
 
     return prod
 
 
-def check(a, b):
-    a_items = a.items()
-    b_items = b.items()
+# sym means the values are only below diagonal, but it's symmetric
+def check(a: list[dict], b: list[dict], a_sym=True, b_sym=True):
+    n = len(a)
 
-    if len(a_items) != len(b_items):
-        return False
+    a_m = to_matrix(a, a_sym)
+    b_m = to_matrix(b, b_sym)
 
-    for key, value in a_items:
-        if b.get(key) != value:
-            return False
+    for i in range(n):
+        for j in range(n):
+            if a_m[i, j] != b_m[i, j]:
+                print(f'{a_m[i ,j]} vs {b_m[i, j]}')
+                return False
 
     return True
 
@@ -93,10 +116,8 @@ def main():
     _sum = sum_matrix(a, b)
     print("Sum is correct?", check(_sum, a_p_b))
 
-    print()
-
-    _prod = multiply_matrix(a, a, n)
-    print("Product is correct?", check(_prod, a_m_a))
+    _square = square_matrix(a)
+    print("Squared is correct?", check(_square, a_m_a, False, True))
 
 
 if __name__ == "__main__":
