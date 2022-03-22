@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 
 def read_matrix(path):
@@ -25,7 +26,7 @@ def read_matrix(path):
     return n, mp
 
 
-def to_matrix(a: list[dict], sym = False):
+def to_matrix(a: list[dict], sym=False):
     n = len(a)
 
     matrix = np.zeros((n, n), dtype='float32')
@@ -42,6 +43,8 @@ def to_matrix(a: list[dict], sym = False):
 
 
 def sum_matrix(a, b):
+    start_time = time.time()
+
     n = len(a)
     r = [{} for _ in range(n)]
 
@@ -56,11 +59,13 @@ def sum_matrix(a, b):
                 continue
 
             r[i][j] = value
-
+    print("---Timp adunare %s seconds ---" % (time.time() - start_time))
     return r
 
 
 def square_matrix(a: list[dict]):
+    start_time = time.time()
+
     n = len(a)
 
     prod = [{} for _ in range(n)]
@@ -86,7 +91,7 @@ def square_matrix(a: list[dict]):
 
             if s != 0:
                 prod[i][j] = s
-
+    print("---Timp inmultire %s seconds ---" % (time.time() - start_time))
     return prod
 
 
@@ -100,7 +105,7 @@ def check(a: list[dict], b: list[dict], a_sym=True, b_sym=True):
     for i in range(n):
         for j in range(n):
             if a_m[i, j] != b_m[i, j]:
-                print(f'{a_m[i ,j]} vs {b_m[i, j]}')
+                print(f'{a_m[i, j]} vs {b_m[i, j]}')
                 return False
 
     return True
