@@ -62,7 +62,7 @@ def product(a, x):
 
 
 # |Ax - b|
-def check_solution(a, b, x):
+def check_with_real_solution(a, b, x):
     pr = product(a, x)
     return np.linalg.norm(pr - b)
 
@@ -92,16 +92,22 @@ def jacobi_method(a, b, eps):
                 su += x_prev[j, 0] * value
 
             x_current[i, 0] = (b[i] - su) / a[i][i]
+
+        DX = np.linalg.norm(x_current - x_prev)
+        progress.append(DX)
+
         x_prev = x_current.copy()
 
-        norm = check_solution(a, b, x_current)
-        progress.append(norm)
+        print(DX)
 
-        print(norm)
-
-        if norm < eps:
+        if DX < eps:
             plt.show()
             print(f'Solution found in {iteration} iterations')
+            break
+
+        if DX > (10 ** 8):
+            plt.show()
+            print(f'Divergence')
             break
 
     return x_current, progress
@@ -111,7 +117,7 @@ def show_progress(y, title):
     plt.plot(y)
     plt.title(title)
     plt.xlabel('Iteration')
-    plt.ylabel('Norm')
+    plt.ylabel('DX')
     plt.savefig(f'plots/{title}.png')
 
 
@@ -128,16 +134,16 @@ def main():
     b4 = read_line_matrix('b_4.txt', n_a4)
     b5 = read_line_matrix('b_5.txt', n_a5)
 
-    x, progress = jacobi_method(a1, b1, 0.00001)
+    x, progress = jacobi_method(a1, b1, 0.0001)
     show_progress(progress, 'Progress for a1')
 
-    x, progress = jacobi_method(a2, b2, 0.001)
+    x, progress = jacobi_method(a2, b2, 0.0001)
     show_progress(progress, 'Progress for a2')
 
-    x, progress = jacobi_method(a3, b3, 2)
+    x, progress = jacobi_method(a3, b3, 0.0001)
     show_progress(progress, 'Progress for a3')
-
-    x, progress = jacobi_method(a4, b4, 58)
+    #
+    x, progress = jacobi_method(a4, b4, 0.126)
     show_progress(progress, 'Progress for a4')
 
     x, progress = jacobi_method(a5, b5, 1)
