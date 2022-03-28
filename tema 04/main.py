@@ -33,6 +33,26 @@ def read_matrix(path):
     return n, mp
 
 
+# Another way of memorizing the rare matrix
+def read_matrix_special(path):
+    # using the first method of memorizing the matrix because of the duplicate elements
+    n, a = read_matrix(path)
+
+    for i in range(n):
+        for j, value in a[i].items():
+            a[j][i] = value
+
+    num = []
+    poz = []
+
+    for i in range(n):
+        for j, value in a[i].items():
+            num.append(value)
+            poz.append(n * i + j)
+
+    return n, num, poz
+
+
 def read_line_matrix(path, n):
     matrix = np.zeros((n, 1), dtype='float32')
 
@@ -73,16 +93,13 @@ def jacobi_method(a, b, eps):
     x_prev = np.zeros((n, 1), dtype='float32')
     x_current = np.zeros((n, 1), dtype='float32')
 
-    iterations = 10000
-
-    # Todo, maybe transpose in another 'matrix'
     for i in range(n):
         for j, value in a[i].items():
             a[j][i] = value
 
     progress = []
 
-    for iteration in range(iterations):
+    for iteration in range(10000):
         for i in range(n):
             su = 0
             for j, value in a[i].items():
@@ -92,6 +109,64 @@ def jacobi_method(a, b, eps):
                 su += x_prev[j, 0] * value
 
             x_current[i, 0] = (b[i] - su) / a[i][i]
+
+        DX = np.linalg.norm(x_current - x_prev)
+        progress.append(DX)
+
+        x_prev = x_current.copy()
+
+        print(DX)
+
+        if DX < eps:
+            plt.show()
+            print(f'Solution found in {iteration} iterations')
+            break
+
+        if DX > (10 ** 8):
+            plt.show()
+            print(f'Divergence')
+            break
+
+    return x_current, progress
+
+
+def jacobi_method_special(num, poz, n, b, eps):
+    x_prev = np.zeros((n, 1), dtype='float32')
+    x_current = np.zeros((n, 1), dtype='float32')
+
+    progress = []
+    diag = []
+
+    for k in range(len(num)):
+        number = num[k]
+        i = int(poz[k]) // n
+        j = int(poz[k]) % n
+
+        if i == j:
+            diag.append(number)
+
+    for iteration in range(10000):
+
+        current_i = poz[0] / n
+        su = 0
+
+        for k in range(len(num)):
+            number = num[k]
+            i = int(poz[k]) // n
+            j = int(poz[k]) % n
+
+            if i == j:
+                continue
+
+            if current_i != i:
+                current_i = i
+                x_current[i, 0] = (b[i] - su) / diag[i]
+                su = 0
+
+            su += number * x_prev[j, 0]
+
+        if su != 0:
+            x_current[n - 1, 0] = (b[n - 1] - su) / diag[n - 1]
 
         DX = np.linalg.norm(x_current - x_prev)
         progress.append(DX)
@@ -148,6 +223,27 @@ def main():
 
     x, progress = jacobi_method(a5, b5, 1)
     show_progress(progress, 'Progress for a5')
+
+    # Another way of memorizing the rare matrix
+    n_a1, a1, poz1 = read_matrix_special('a_1.txt')
+    x, progress = jacobi_method_special(a1, poz1, n_a1, b1, 0.0001)
+    show_progress(progress, 'Progress for a1 special')
+
+    n_a2, a2, poz2 = read_matrix_special('a_2.txt')
+    x, progress = jacobi_method_special(a2, poz2, n_a2, b2, 0.0001)
+    show_progress(progress, 'Progress for a2 special')
+
+    n_a3, a3, poz3 = read_matrix_special('a_3.txt')
+    x, progress = jacobi_method_special(a3, poz3, n_a3, b3, 0.0001)
+    show_progress(progress, 'Progress for a3 special')
+
+    n_a4, a4, poz4 = read_matrix_special('a_4.txt')
+    x, progress = jacobi_method_special(a4, poz4, n_a4, b4, 0.126)
+    show_progress(progress, 'Progress for a4 special')
+
+    n_a5, a5, poz5 = read_matrix_special('a_5.txt')
+    x, progress = jacobi_method_special(a5, poz5, n_a5, b5, 0.1)
+    show_progress(progress, 'Progress for a5 special')
 
 
 if __name__ == '__main__':
