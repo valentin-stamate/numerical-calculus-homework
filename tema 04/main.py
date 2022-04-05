@@ -238,7 +238,8 @@ def show_progress(dx_progress, sol_progress, title):
     plt.title(title)
     plt.xlabel('Iteration')
     plt.ylabel('Progress')
-    plt.show()
+    # You can do either show or save
+    # plt.show()
     plt.savefig(f'plots/{title}.png')
 
 
@@ -257,51 +258,51 @@ def main():
 
     # Uncomment the one that you want to verify
 
-    # x, dx_progress, sol_progress = jacobi_method(a1, b1, 0.0001)
-    # show_progress(dx_progress, sol_progress, 'Progress for a1')
-    # print(x)
+    x, dx_progress, sol_progress = jacobi_method(a1, b1, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a1')
+    print(x)
 
-    # x, dx_progress, sol_progress = jacobi_method(a2, b2, 0.0001)
-    # show_progress(dx_progress, sol_progress, 'Progress for a2')
-    # print(x)
+    x, dx_progress, sol_progress = jacobi_method(a2, b2, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a2')
+    print(x)
 
-    # x, dx_progress, sol_progress = jacobi_method(a3, b3, 0.0001)
-    # show_progress(dx_progress, sol_progress, 'Progress for a3')
-    # print(x)
+    x, dx_progress, sol_progress = jacobi_method(a3, b3, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a3')
+    print(x)
 
-    # x, dx_progress, sol_progress = jacobi_method(a4, b4, 0.126)
-    # show_progress(dx_progress, sol_progress, 'Progress for a4')
-    # print(x)
+    x, dx_progress, sol_progress = jacobi_method(a4, b4, 0.126)
+    show_progress(dx_progress, sol_progress, 'Progress for a4')
+    print(x)
 
-    # x, dx_progress, sol_progress = jacobi_method(a5, b5, 1)
-    # show_progress(dx_progress, sol_progress, 'Progress for a5')
-    # print(x)
+    x, dx_progress, sol_progress = jacobi_method(a5, b5, 1)
+    show_progress(dx_progress, sol_progress, 'Progress for a5')
+    print(x)
 
-    # # # Another way of memorizing the rare matrix
-    # n_a1, num1, poz1 = read_matrix_special('a_1.txt')
-    # x, dx_progress, sol_progress = jacobi_method_special(num1, poz1, n_a1, b1, 0.0001)
-    # show_progress(dx_progress, sol_progress, 'Progress for a1 special')
-    # print(x)
+    # # Another way of memorizing the rare matrix
+    n_a1, num1, poz1 = read_matrix_special('a_1.txt')
+    x, dx_progress, sol_progress = jacobi_method_special(num1, poz1, n_a1, b1, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a1 special')
+    print(x)
 
-    # n_a2, a2, poz2 = read_matrix_special('a_2.txt')
-    # x, dx_progress, sol_progress = jacobi_method_special(a2, poz2, n_a2, b2, 0.0001)
-    # show_progress(dx_progress, sol_progress, 'Progress for a2 special')
-    # print(x)
+    n_a2, a2, poz2 = read_matrix_special('a_2.txt')
+    x, dx_progress, sol_progress = jacobi_method_special(a2, poz2, n_a2, b2, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a2 special')
+    print(x)
 
-    # n_a3, a3, poz3 = read_matrix_special('a_3.txt')
-    # x, dx_progress, sol_progress = jacobi_method_special(a3, poz3, n_a3, b3, 0.0001)
-    # show_progress(dx_progress, sol_progress, 'Progress for a3 special')
-    # print(x)
+    n_a3, a3, poz3 = read_matrix_special('a_3.txt')
+    x, dx_progress, sol_progress = jacobi_method_special(a3, poz3, n_a3, b3, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a3 special')
+    print(x)
 
-    # n_a4, a4, poz4 = read_matrix_special('a_4.txt')
-    # x, dx_progress, sol_progress = jacobi_method_special(a4, poz4, n_a4, b4, 0.126)
-    # show_progress(dx_progress, sol_progress, 'Progress for a4 special')
-    # print(x)
+    n_a4, a4, poz4 = read_matrix_special('a_4.txt')
+    x, dx_progress, sol_progress = jacobi_method_special(a4, poz4, n_a4, b4, 0.126)
+    show_progress(dx_progress, sol_progress, 'Progress for a4 special')
+    print(x)
 
-    # n_a5, a5, poz5 = read_matrix_special('a_5.txt')
-    # x, dx_progress, sol_progress = jacobi_method_special(a5, poz5, n_a5, b5, 0.1)
-    # show_progress(dx_progress, sol_progress, 'Progress for a5 special')
-    # print(x)
+    n_a5, a5, poz5 = read_matrix_special('a_5.txt')
+    x, dx_progress, sol_progress = jacobi_method_special(a5, poz5, n_a5, b5, 0.1)
+    show_progress(dx_progress, sol_progress, 'Progress for a5 special')
+    print(x)
 
 
 if __name__ == '__main__':
