@@ -81,9 +81,41 @@ def product(a, x):
     return pr
 
 
+def product_special(num, poz, x):
+    n = len(x)
+
+    pr = np.zeros((n, 1), dtype='float32')
+
+    ci = 0
+    su = 0
+
+    for k in range(len(num)):
+        number = num[k]
+        i = poz[k] // n
+        j = poz[k] % n
+
+        if ci != i:
+            pr[ci, 0] = su
+            ci = i
+            su = 0
+
+        su += number * x[j, 0]
+
+    if su != 0:
+        pr[n - 1, 0] = su
+
+    return pr
+
+
 # |Ax - b|
 def check_with_real_solution(a, b, x):
     pr = product(a, x)
+    return np.linalg.norm(pr - b)
+
+
+# |Ax - b|
+def check_with_real_solution_special(num, poz, b, x):
+    pr = product_special(num, poz, x)
     return np.linalg.norm(pr - b)
 
 
@@ -97,7 +129,8 @@ def jacobi_method(a, b, eps):
         for j, value in a[i].items():
             a[j][i] = value
 
-    progress = []
+    dx_progress = []
+    solution_progress = []
 
     for iteration in range(10000):
         for i in range(n):
@@ -111,11 +144,15 @@ def jacobi_method(a, b, eps):
             x_current[i, 0] = (b[i] - su) / a[i][i]
 
         DX = np.linalg.norm(x_current - x_prev)
-        progress.append(DX)
+        sol = check_with_real_solution(a, b, x_current)
+
+        dx_progress.append(DX)
+        solution_progress.append(sol)
 
         x_prev = x_current.copy()
 
         print(DX)
+        print(sol)
 
         if DX < eps:
             plt.show()
@@ -127,40 +164,42 @@ def jacobi_method(a, b, eps):
             print(f'Divergence')
             break
 
-    return x_current, progress
+    return x_current, dx_progress, solution_progress
 
 
 def jacobi_method_special(num, poz, n, b, eps):
     x_prev = np.zeros((n, 1), dtype='float32')
     x_current = np.zeros((n, 1), dtype='float32')
 
-    progress = []
+    dx_progress = []
+    solution_progress = []
+
     diag = []
 
     for k in range(len(num)):
         number = num[k]
-        i = int(poz[k]) // n
-        j = int(poz[k]) % n
+        i = poz[k] // n
+        j = poz[k] % n
 
         if i == j:
             diag.append(number)
 
     for iteration in range(10000):
 
-        current_i = poz[0] / n
+        ci = 0
         su = 0
 
         for k in range(len(num)):
             number = num[k]
-            i = int(poz[k]) // n
-            j = int(poz[k]) % n
+            i = poz[k] // n
+            j = poz[k] % n
 
             if i == j:
                 continue
 
-            if current_i != i:
-                current_i = i
-                x_current[i, 0] = (b[i] - su) / diag[i]
+            if ci != i:
+                x_current[ci, 0] = (b[ci] - su) / diag[ci]
+                ci = i
                 su = 0
 
             su += number * x_prev[j, 0]
@@ -169,11 +208,15 @@ def jacobi_method_special(num, poz, n, b, eps):
             x_current[n - 1, 0] = (b[n - 1] - su) / diag[n - 1]
 
         DX = np.linalg.norm(x_current - x_prev)
-        progress.append(DX)
+        sol = check_with_real_solution_special(num, poz, b, x_current)
+
+        dx_progress.append(DX)
+        solution_progress.append(sol)
 
         x_prev = x_current.copy()
 
         print(DX)
+        print(sol)
 
         if DX < eps:
             plt.show()
@@ -185,14 +228,18 @@ def jacobi_method_special(num, poz, n, b, eps):
             print(f'Divergence')
             break
 
-    return x_current, progress
+    return x_current, dx_progress, solution_progress
 
 
-def show_progress(y, title):
-    plt.plot(y)
+def show_progress(dx_progress, sol_progress, title):
+    line1, = plt.plot(dx_progress, label='DX')
+    line2, = plt.plot(sol_progress, label='Sol Conv')
+    plt.legend(handles=[line1, line2])
     plt.title(title)
     plt.xlabel('Iteration')
-    plt.ylabel('DX')
+    plt.ylabel('Progress')
+    # You can do either show or save
+    # plt.show()
     plt.savefig(f'plots/{title}.png')
 
 
@@ -209,41 +256,53 @@ def main():
     b4 = read_line_matrix('b_4.txt', n_a4)
     b5 = read_line_matrix('b_5.txt', n_a5)
 
-    x, progress = jacobi_method(a1, b1, 0.0001)
-    show_progress(progress, 'Progress for a1')
+    # Uncomment the one that you want to verify
 
-    x, progress = jacobi_method(a2, b2, 0.0001)
-    show_progress(progress, 'Progress for a2')
+    x, dx_progress, sol_progress = jacobi_method(a1, b1, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a1')
+    print(x)
 
-    x, progress = jacobi_method(a3, b3, 0.0001)
-    show_progress(progress, 'Progress for a3')
-    #
-    x, progress = jacobi_method(a4, b4, 0.126)
-    show_progress(progress, 'Progress for a4')
+    x, dx_progress, sol_progress = jacobi_method(a2, b2, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a2')
+    print(x)
 
-    x, progress = jacobi_method(a5, b5, 1)
-    show_progress(progress, 'Progress for a5')
+    x, dx_progress, sol_progress = jacobi_method(a3, b3, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a3')
+    print(x)
 
-    # Another way of memorizing the rare matrix
-    n_a1, a1, poz1 = read_matrix_special('a_1.txt')
-    x, progress = jacobi_method_special(a1, poz1, n_a1, b1, 0.0001)
-    show_progress(progress, 'Progress for a1 special')
+    x, dx_progress, sol_progress = jacobi_method(a4, b4, 0.126)
+    show_progress(dx_progress, sol_progress, 'Progress for a4')
+    print(x)
+
+    x, dx_progress, sol_progress = jacobi_method(a5, b5, 1)
+    show_progress(dx_progress, sol_progress, 'Progress for a5')
+    print(x)
+
+    # # Another way of memorizing the rare matrix
+    n_a1, num1, poz1 = read_matrix_special('a_1.txt')
+    x, dx_progress, sol_progress = jacobi_method_special(num1, poz1, n_a1, b1, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a1 special')
+    print(x)
 
     n_a2, a2, poz2 = read_matrix_special('a_2.txt')
-    x, progress = jacobi_method_special(a2, poz2, n_a2, b2, 0.0001)
-    show_progress(progress, 'Progress for a2 special')
+    x, dx_progress, sol_progress = jacobi_method_special(a2, poz2, n_a2, b2, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a2 special')
+    print(x)
 
     n_a3, a3, poz3 = read_matrix_special('a_3.txt')
-    x, progress = jacobi_method_special(a3, poz3, n_a3, b3, 0.0001)
-    show_progress(progress, 'Progress for a3 special')
+    x, dx_progress, sol_progress = jacobi_method_special(a3, poz3, n_a3, b3, 0.0001)
+    show_progress(dx_progress, sol_progress, 'Progress for a3 special')
+    print(x)
 
     n_a4, a4, poz4 = read_matrix_special('a_4.txt')
-    x, progress = jacobi_method_special(a4, poz4, n_a4, b4, 0.126)
-    show_progress(progress, 'Progress for a4 special')
+    x, dx_progress, sol_progress = jacobi_method_special(a4, poz4, n_a4, b4, 0.126)
+    show_progress(dx_progress, sol_progress, 'Progress for a4 special')
+    print(x)
 
     n_a5, a5, poz5 = read_matrix_special('a_5.txt')
-    x, progress = jacobi_method_special(a5, poz5, n_a5, b5, 0.1)
-    show_progress(progress, 'Progress for a5 special')
+    x, dx_progress, sol_progress = jacobi_method_special(a5, poz5, n_a5, b5, 0.1)
+    show_progress(dx_progress, sol_progress, 'Progress for a5 special')
+    print(x)
 
 
 if __name__ == '__main__':
