@@ -1,7 +1,7 @@
 import math
 import random
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def identity_matrix(n) -> np.ndarray:
     a = np.zeros((n, n), dtype='float32')
@@ -70,14 +70,6 @@ def calculate_pq(a):
     return m, p, q
 
 
-def calculate_angle(a, p, q):
-    n = len(a)
-
-    c = s = t = 0
-
-    return c, s, t
-
-
 def generate_symmetric_matrix(n) -> np.ndarray:
     ar = np.zeros((n, n), dtype='float32')
 
@@ -88,13 +80,31 @@ def generate_symmetric_matrix(n) -> np.ndarray:
     return ar
 
 
+def extract_eigenvector(u) -> np.ndarray:
+    return np.copy(u)
+
+
+def extract_eigenvalues(a) -> np.ndarray:
+    n = len(a)
+    eigen_values = np.zeros((1, n), dtype='float32')
+
+    for i in range(n):
+        eigen_values[0, i] = a[i, i]
+
+    return eigen_values
+
+
 def jacobi_method_for_eigenvalues(a):
     n = len(a)
     eps = 10 ** (-6)
 
+    a_old = a.copy()
+
     apq, p, q = calculate_pq(a)
     c, s, t = calculate_values(a, p, q)
     u = identity_matrix(n)
+
+    evolution = []
 
     k = 0
     while apq > eps and k <= 1000:
@@ -104,30 +114,46 @@ def jacobi_method_for_eigenvalues(a):
         apq, p, q = calculate_pq(a)
         c, s, t = calculate_values(a, p, q)
 
+        # for plot
+        eigen_vector = extract_eigenvector(u)
+        eigen_values = extract_eigenvalues(a)
+
+        evolution.append(check_jacobi(a_old, eigen_vector, eigen_values))
+
         k += 1
 
     # an eigen vector is found in a column
-    eigen_vector = np.copy(u)
-    eigen_values = np.zeros((1, n), dtype='float32')
+    eigen_vector = extract_eigenvector(u)
+    eigen_values = extract_eigenvalues(a)
 
-    for i in range(n):
-        eigen_values[0, i] = a[i, i]
+    return eigen_vector, eigen_values, evolution
 
-    return eigen_vector, eigen_values
+
+def check_jacobi(a, u, lamb):
+    return np.linalg.norm(a.dot(u) - u * lamb)
 
 
 def main():
+    n = 25
 
-    a = generate_symmetric_matrix(4)
-    eigen_vector, eigen_values = jacobi_method_for_eigenvalues(a)
+    a = generate_symmetric_matrix(n)
+    u, lamb, evolution = jacobi_method_for_eigenvalues(a)
+    # print('Computed')
+    # print('EigenValues\n', u)
+    # print('EigenVectors\n', lamb)
 
-    print('EigenValues\n', eigen_values)
-    print('EigenVectors\n', eigen_vector)
+    # library_result = np.linalg.eigh(a)
+    # print('Library')
+    # print('EigenValues\n', library_result[0])
+    # print('EigenVectors\n', library_result[1])
 
-    print('Library')
-    library_result = np.linalg.eigh(a)
-    print('EigenValues\n', library_result[0])
-    print('EigenVectors\n', library_result[1])
+    print(check_jacobi(a, u, lamb))
+    plt.plot(evolution)
+    plt.title(f'Evolution, n={n}')
+    plt.xlabel('Iteration')
+    plt.ylabel('||AU - Uλ||')
+    plt.show()
+
 
 if __name__ == '__main__':
     main()
