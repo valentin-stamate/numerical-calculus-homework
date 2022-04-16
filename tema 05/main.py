@@ -34,11 +34,12 @@ def next_a(a, p, q, c, s, t) -> np.ndarray:
 # U = U * R_pq^t(O)
 def next_u(u, p, q, c, s, t) -> np.ndarray:
     n = len(u)
+    old_u = u
     u = np.copy(u)
 
     for i in range(n):
         u[i, p] = c * u[i, p] + s * u[i, q]
-        u[i, q] = -s * u[i, p] + c * u[i, q]
+        u[i, q] = -s * old_u[i, p] + c * u[i, q]
 
     return u
 
@@ -105,26 +106,28 @@ def jacobi_method_for_eigenvalues(a):
 
         k += 1
 
-    eigen_vector = np.transpose(u)
-    eigen_values = []
+    # an eigen vector is found in a column
+    eigen_vector = np.copy(u)
+    eigen_values = np.zeros((1, n), dtype='float32')
 
     for i in range(n):
-        eigen_values.append(a[i, i])
+        eigen_values[0, i] = a[i, i]
 
-    result = []
-
-    for i in range(n):
-        result.append([eigen_values[i], eigen_vector[i]])
-
-    return result
+    return eigen_vector, eigen_values
 
 
 def main():
 
     a = generate_symmetric_matrix(4)
+    eigen_vector, eigen_values = jacobi_method_for_eigenvalues(a)
 
-    print(jacobi_method_for_eigenvalues(a))
+    print('EigenValues\n', eigen_values)
+    print('EigenVectors\n', eigen_vector)
 
+    print('Library')
+    library_result = np.linalg.eigh(a)
+    print('EigenValues\n', library_result[0])
+    print('EigenVectors\n', library_result[1])
 
 if __name__ == '__main__':
     main()
