@@ -126,7 +126,7 @@ def jacobi_method_for_eigenvalues(a):
     eigen_vector = extract_eigenvector(u)
     eigen_values = extract_eigenvalues(a)
 
-    return eigen_vector, eigen_values, evolution
+    return eigen_values, eigen_vector, evolution
 
 
 def check_jacobi(a, u, lamb):
@@ -137,22 +137,28 @@ def main():
     n = 25
 
     a = generate_symmetric_matrix(n)
-    u, lamb, evolution = jacobi_method_for_eigenvalues(a)
-    # print('Computed')
-    # print('EigenValues\n', u)
-    # print('EigenVectors\n', lamb)
+    lamb, u, evolution = jacobi_method_for_eigenvalues(a)
 
-    # library_result = np.linalg.eigh(a)
-    # print('Library')
-    # print('EigenValues\n', library_result[0])
-    # print('EigenVectors\n', library_result[1])
-
+    # Exercise 1
     print(check_jacobi(a, u, lamb))
     plt.plot(evolution)
     plt.title(f'Evolution, n={n}')
     plt.xlabel('Iteration')
     plt.ylabel('||AU - Uλ||')
     plt.show()
+
+    # Exercise 2
+    # print('Computed')
+    # print('EigenValues\n', lamb)
+    # print('EigenVectors\n', u)
+
+    # lamb_lib, u_lib = np.linalg.eigh(a)
+    # print('Library')
+    # print('EigenValues\n', lamb_lib)
+    # print('EigenVectors\n', u_lib)
+
+    lamb_lib, u_lib = np.linalg.eigh(a)
+    print(np.min(lamb - lamb_lib))
 
 
 if __name__ == '__main__':
