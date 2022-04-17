@@ -21,12 +21,10 @@ def dehghan_solve(p):
     x = random.uniform(-r, r)
     delta_x = 1
     while True:
-        if abs(delta_x) < epsilon or k == K_MAX or abs(delta_x) >= 10 ** 8:
-            break
-        if abs(polynomial_value_horner_method(p, x)) <= epsilon / 10:
+        p_x = polynomial_value_horner_method(p, x)
+        if abs(p_x) <= epsilon / 10:
             delta_x = 0
         else:
-            p_x = polynomial_value_horner_method(p, x)
             p_x_plus_px = polynomial_value_horner_method(p, x + p_x)
             p_x_minus_px = polynomial_value_horner_method(p, x - p_x)
             y_k = x - (2 * (p_x ** 2) / (p_x_plus_px - p_x_minus_px))
@@ -34,6 +32,8 @@ def dehghan_solve(p):
             delta_x = (2 * p_x * (p_x + p_y)) / (p_x_plus_px - p_x_minus_px)
         x = x - delta_x
         k += 1
+        if abs(delta_x) < epsilon or k == K_MAX or abs(delta_x) >= 10 ** 8:
+            break
     if abs(delta_x) < epsilon:
         return x
     else:
@@ -47,6 +47,11 @@ def check(x):
         return ''
 
 
+def check_p(p, s):
+    if abs(polynomial_value_horner_method(p, s)) < epsilon:
+        return True
+
+
 def write_solutions(p, solutions):
     f = open('solutions.txt', 'w+')
     f.write('Solutiile polinomului ')
@@ -57,15 +62,18 @@ def write_solutions(p, solutions):
             f.write('+')
         n -= 1
     f.write(f'{p[n]} sunt:\n')
-    for i in range(len(solutions)):
-        f.write(f'x{i + 1} = {solutions[i]}\n')
+    i = 0
+    for s in solutions:
+        if check_p(p, s):
+            f.write(f'x{i + 1} = {s}\n')
+            i += 1
 
 
 def main():
     p = np.array([1, -6, 11, -6])
     solution_integers = []
     solutions = []
-    for i in range(50):
+    for i in range(30):
         x = dehghan_solve(p)
         print(x)
         if x is not None:
