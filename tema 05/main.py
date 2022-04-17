@@ -94,6 +94,10 @@ def extract_eigenvalues(a) -> np.ndarray:
     return eigen_values
 
 
+def check_jacobi(a, u, lamb):
+    return np.linalg.norm(a.dot(u) - u * lamb)
+
+
 def jacobi_method_for_eigenvalues(a):
     n = len(a)
     eps = 10 ** (-6)
@@ -129,10 +133,6 @@ def jacobi_method_for_eigenvalues(a):
     return eigen_values, eigen_vector, evolution
 
 
-def check_jacobi(a, u, lamb):
-    return np.linalg.norm(a.dot(u) - u * lamb)
-
-
 def main():
     n = 25
 
@@ -140,6 +140,7 @@ def main():
     lamb, u, evolution = jacobi_method_for_eigenvalues(a)
 
     # Exercise 1
+    print("----==== Exercise 1 ====----")
     print(check_jacobi(a, u, lamb))
     plt.plot(evolution)
     plt.title(f'Evolution, n={n}')
@@ -148,6 +149,7 @@ def main():
     plt.show()
 
     # Exercise 2
+    print("\n----==== Exercise 2 ====----")
     # print('Computed')
     # print('EigenValues\n', lamb)
     # print('EigenVectors\n', u)
@@ -158,7 +160,51 @@ def main():
     # print('EigenVectors\n', u_lib)
 
     lamb_lib, u_lib = np.linalg.eigh(a)
-    print(np.min(lamb - lamb_lib))
+
+    su = 0
+    for i in range(n):
+        li = lamb[0, i]
+        mi = abs(li - lamb_lib[0])
+
+        for k in range(n):
+            lk = lamb_lib[k]
+            mi = min(mi, abs(li - lk))
+
+        su += mi
+
+    print(su)
+
+    # Exercise 3
+    print('\n----==== Exercise 3 ====----')
+    p = 10
+    n = 6
+
+    a = np.random.rand(p, n)
+    u, s, vh = np.linalg.svd(a)
+    S = np.zeros((p, n), dtype='float32')
+
+    for i in range(len(s)):
+        S[i, i] = s[i]
+
+    print('Valorile singulare\n', s)
+    poz_values = list(filter(lambda x: x > 0, s))
+    print('Rangul matricei\n', len(poz_values))
+    print('Numarul de conditionare\n', (max(s) / min(poz_values)))
+
+    SI = np.zeros((n, p), dtype='float32')
+    for i in range(len(poz_values)):
+        SI[i, i] = 1 / poz_values[i]
+
+    u = np.array(u)
+    vh = np.array(vh)
+
+    AI = vh.dot(SI).dot(u.transpose())
+    print("Pseudoinversa Moore-Penrose\n", AI)
+
+    AJ = np.linalg.inv(a.transpose().dot(a)).dot(a.transpose())
+    print('Matricea Pseudo-Inversa\n', AJ)
+
+    print('Norm\n', np.linalg.norm(AI - AJ))
 
 
 if __name__ == '__main__':
