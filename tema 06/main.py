@@ -1,13 +1,14 @@
 import math
 import random
 import matplotlib.pyplot as plt
-
 from lagrange import LagrangePolynom
 from leastsquares import LeastSquaresInterpolation
 
 
 def f(x):
-    return math.sin(x) - math.cos(x)
+    # return x ** 2 - 12 * x + 30 # [1, 5]
+    return math.sin(x) - math.cos(x) # [0, 4.75]
+    # return 2 * (x ** 3) - 3 * x + 15 # [0, 2]
 
 
 def show_plot(x, y, x_calc, y_calc, calc_label):
@@ -19,7 +20,7 @@ def show_plot(x, y, x_calc, y_calc, calc_label):
     plt.show()
 
 
-def get_difference(x, fun_appr):
+def get_error(x, fun_appr):
     su = 0
     for i in range(len(x)):
         x_fun = f(x[i])
@@ -31,12 +32,11 @@ def get_difference(x, fun_appr):
 
 
 def main():
-    n = 20
+    n = 30
     eps = 10 ** (-1)
 
-    x0 = 1.0
-    xn = 10.0
-    offset = 3.75
+    x0 = 0
+    xn = 4.75
 
     x = [round(random.uniform(x0 + eps, xn - eps), 2) for _ in range(1, n)] + [x0, xn]
     x.sort()
@@ -57,19 +57,20 @@ def main():
     x_full = x + x_calc
     show_plot(x, y, x_calc, y_calc, 'newton form')
 
-    print('Newton Form Difference:\n', get_difference(x_full, lag))
+    print('Newton Form Difference:\n', get_error(x_full, lag))
 
     # Exercise 2
-    # m = 5
-    # leastsq = LeastSquaresInterpolation(5)
-    # leastsq.create_polynom(x, y)
-    #
-    # y_calc = []
-    #
-    # for i in range(len(x)):
-    #     y_calc.append(leastsq.fun(x[i]))
-    #
-    # show_plot(x, y, x, y_calc, 'lest square')
+    m = 5
+    leastsq = LeastSquaresInterpolation(m)
+    leastsq.create_polynom(x, y)
+
+    y_calc = []
+
+    for i in range(len(x)):
+        y_calc.append(leastsq.fun(x[i]))
+
+    show_plot(x, y, x, y_calc, 'lest square')
+    print('Least Square Difference:\n', get_error(x_full, leastsq))
 
 
 if __name__ == '__main__':

@@ -33,7 +33,7 @@ class LagrangePolynom:
                     pr *= x[i] - x[j]
 
                 if pr == 0:
-                    pr = 10 ** (-8)
+                    pr = 10 ** (-12)
 
                 su += y[i] / pr
 

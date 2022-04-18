@@ -8,11 +8,10 @@ class LeastSquaresInterpolation:
 
     def create_polynom(self, x, y):
         self.coeff = []
-
-        B = np.zeros((self.m + 1, self.m + 1), dtype='float32')
-
         m = self.m
         n = len(x) - 1
+
+        B = np.zeros((m + 1, m + 1), dtype='float32')
 
         # Construct B
         for i in range(m + 1):
@@ -40,6 +39,7 @@ class LeastSquaresInterpolation:
         alpha = np.array(alpha).transpose()
 
         self.coeff = [val for val in alpha[0]]
+        self.coeff.reverse()
         # F = a0 + a1 * x + a2 * x^2 .... + am * x^m
 
     def fun(self, x):
