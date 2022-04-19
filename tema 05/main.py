@@ -100,7 +100,7 @@ def check_jacobi(a, u, lamb):
 
 def jacobi_method_for_eigenvalues(a):
     n = len(a)
-    eps = 10 ** (-6)
+    eps = 10 ** (-10)
 
     a_old = a.copy()
 
@@ -126,6 +126,9 @@ def jacobi_method_for_eigenvalues(a):
 
         k += 1
 
+    print('K=', k)
+    print(a)
+
     # an eigen vector is found in a column
     eigen_vector = extract_eigenvector(u)
     eigen_values = extract_eigenvalues(a)
@@ -134,7 +137,7 @@ def jacobi_method_for_eigenvalues(a):
 
 
 def main():
-    n = 25
+    n = 10
 
     a = generate_symmetric_matrix(n)
     lamb, u, evolution = jacobi_method_for_eigenvalues(a)
@@ -197,6 +200,8 @@ def main():
 
     u = np.array(u)
     vh = np.array(vh)
+
+    vh = vh.transpose()
 
     AI = vh.dot(SI).dot(u.transpose())
     print("Pseudoinversa Moore-Penrose\n", AI)
