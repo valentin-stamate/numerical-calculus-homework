@@ -1,7 +1,5 @@
 import random
 
-import numpy as np
-
 K_MAX = 5000
 epsilon = 10 ** (-6)
 
@@ -53,7 +51,7 @@ def check_p(p, s):
 
 
 def write_solutions(p, solutions):
-    f = open('solutions.txt', 'w+')
+    f = open('solutions.txt', 'a')
     f.write('Solutiile polinomului ')
     n = len(p) - 1
     for i in range(len(p) - 1):
@@ -61,21 +59,20 @@ def write_solutions(p, solutions):
         if p[i + 1] > 0:
             f.write('+')
         n -= 1
-    f.write(f'{p[n]} sunt:\n')
+    f.write(f'{p[len(p) - 1]} sunt:\n')
     i = 0
     for s in solutions:
         if check_p(p, s):
             f.write(f'x{i + 1} = {s}\n')
             i += 1
+    f.write('\n')
 
 
-def main():
-    p = np.array([1, -6, 11, -6])
+def solve_polynomial(p):
     solution_integers = []
     solutions = []
-    for i in range(30):
+    for i in range(60):
         x = dehghan_solve(p)
-        print(x)
         if x is not None:
             y = round(x)
             if y not in solution_integers:
@@ -83,6 +80,17 @@ def main():
                 solutions.append(x)
 
     write_solutions(p, solutions)
+
+
+def main():
+    p = [1, -6, 11, -6]
+    solve_polynomial(p)
+    p = [1, (-55 / 42), -1, (49 / 42), (-6 / 42)]
+    solve_polynomial(p)
+    p = [1, -38 / 8, 49 / 8, -22 / 8, 3 / 8]
+    solve_polynomial(p)
+    p = [1, -6, 13, -12, 4]
+    solve_polynomial(p)
 
 
 if __name__ == '__main__':
